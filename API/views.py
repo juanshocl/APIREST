@@ -38,8 +38,7 @@ def login(request):
     pwd_valid = check_password(password,user.password)
     
     if not pwd_valid:
-        return response('error':'1',
-                      'mensaje':'Usuario o contraseña no valido')
+        return Response('contraseña no valido')
         
     token, _ = Token.objects.get_or_create(user=user)
     return Response(token.key, 'holi')
