@@ -33,15 +33,15 @@ def login(request):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return Response('Usuario o contraseña no valido')
+        return Response('Usuario o contraseña no valido', status = status.HTTP_401_UNAUTHORIZED)
         
     pwd_valid = check_password(password,user.password)
     
     if not pwd_valid:
-        return Response('contraseña no valido')
+        return Response('contraseña no valido', status = status.HTTP_401_UNAUTHORIZED)
         
     token, _ = Token.objects.get_or_create(user=user)
-    return Response(token.key)
+    return Response(token.key, status = status.HTTP_202_ACCEPTED)
     # return render(request,'login.html' )
 
 # class Login(FormView):
