@@ -1,3 +1,4 @@
+from django.http import response
 from django.http.response import HttpResponse
 from django.shortcuts import render,redirect
 from rest_framework import generics
@@ -37,11 +38,11 @@ def login(request):
     pwd_valid = check_password(password,user.password)
     
     if not pwd_valid:
-        return Response('Usuario o contraseña no valido')
+        return response('error':'1',
+                      'mensaje':'Usuario o contraseña no valido')
         
     token, _ = Token.objects.get_or_create(user=user)
-    print(token)
-    return Response(token.key)
+    return Response(token.key, 'holi')
     # return render(request,'login.html' )
 
 # class Login(FormView):
@@ -64,6 +65,18 @@ def login(request):
 #             login(self.request, form.get_user())
 #             return super(Login,self).form_valid(form)
     
+#    ######### # Register API
+# class RegisterAPI(generics.GenericAPIView):
+#     serializer_class = RegisterSerializer
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.save()
+#         return Response({
+#         "user": UserSerializer(user, context=self.get_serializer_context()).data,
+#         "token": AuthToken.objects.create(user)[1]
+#         })
     
     
 class PersonaList(generics.ListCreateAPIView):
@@ -76,4 +89,4 @@ class Logout(APIView):
     def get(self,request, format = None):
         request.user.auth_token.delete()
         logout(request)
-        return Response(status = status.HTTP_200_OK)
+        return Response(status = status.HTTP_202_ACCEPTED)
