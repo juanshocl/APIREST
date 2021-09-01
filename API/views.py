@@ -41,7 +41,7 @@ def login(request):
         return Response('contraseña no valido')
         
     token, _ = Token.objects.get_or_create(user=user)
-    return Response(token.key, 'holi')
+    return Response(token.key)
     # return render(request,'login.html' )
 
 # class Login(FormView):
