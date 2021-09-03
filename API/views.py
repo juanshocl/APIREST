@@ -47,6 +47,7 @@ def login(request):
         'user': str(user),
         'exp': str(datetime.datetime.utcnow()) + str(datetime.timedelta(minutes=60)),
         'iat': str(datetime.datetime.utcnow()),
+        'status': status.HTTP_202_ACCEPTED,
         'tk': str(tk)
     }
 
@@ -54,7 +55,6 @@ def login(request):
     response = Response()
     response.data = {
         'jwt': token,
-        'status': status.HTTP_202_ACCEPTED,
     }
     
     # return response
