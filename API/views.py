@@ -50,7 +50,7 @@ def login(request):
         'tk': str(tk)
     }
 
-    token = jwt.encode(payload, secret, algorithm='HS256').decode('utf-8')
+    token = jwt.encode(payload, secret, algorithm='HS256')#.decode('utf-8')
     response = Response()
     response.data = {
         'jwt': token,
