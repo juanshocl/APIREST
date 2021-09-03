@@ -24,25 +24,49 @@ from django.contrib.auth.models import User, UserManager
 from django.contrib.auth.hashers import check_password
 from rest_framework import viewsets
 from .serializers import UserSerializer
+import jwt, datetime
 
 @api_view(['POST'])
 def login(request):
-    
+    secret = '201bDFxMo0QurVdUrKF2cimkbHDXQ3lp'
     username = request.POST.get('username')
     password = request.POST.get('password')
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return Response('Usuario o contraseña no valido', status = status.HTTP_401_UNAUTHORIZED)
-        
+
     pwd_valid = check_password(password,user.password)
-    
+
     if not pwd_valid:
         return Response('contraseña no valido', status = status.HTTP_401_UNAUTHORIZED)
-        
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response(token.key, status = status.HTTP_202_ACCEPTED)
+
+    tk, _ = Token.objects.get_or_create(user=user)
+    
+    payload = {
+        'user': str(user),
+        'exp': str(datetime.datetime.utcnow()) + str(datetime.timedelta(minutes=60)),
+        'iat': str(datetime.datetime.utcnow()),
+        'tk': str(tk)
+    }
+
+    token = jwt.encode(payload, secret, algorithm='HS256').decode('utf-8')
+    response = Response()
+    response.data = {
+        'jwt': token,
+        'status': status.HTTP_202_ACCEPTED,
+    }
+    
+    # return response
+
+    # token, _ = Token.objects.get_or_create(user=user)
+    
+    return response
+    # return Response(response)
     # return render(request,'login.html' )
+
+
+
 
 # class Login(FormView):
 #     template_name = "login.html"
@@ -63,7 +87,7 @@ def login(request):
 #         if token:
 #             login(self.request, form.get_user())
 #             return super(Login,self).form_valid(form)
-    
+
 #    ######### # Register API
 # class RegisterAPI(generics.GenericAPIView):
 #     serializer_class = RegisterSerializer
@@ -76,8 +100,8 @@ def login(request):
 #         "user": UserSerializer(user, context=self.get_serializer_context()).data,
 #         "token": AuthToken.objects.create(user)[1]
 #         })
-    
-    
+
+
 class PersonaList(generics.ListCreateAPIView):
     queryset = Persona.objects.all()
     serializer_class = PersonaSerializer
@@ -89,3 +113,24 @@ class Logout(APIView):
         request.user.auth_token.delete()
         logout(request)
         return Response(status = status.HTTP_200_OK)
+
+
+
+#Ejemplo de autenticacion con vista basada en clases.
+ 
+    
+# from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from rest_framework.views import APIView
+
+# class ExampleView(APIView):
+#     authentication_classes = [SessionAuthentication, BasicAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, format=None):
+#         content = {
+#             'user': str(request.user),  # `django.contrib.auth.User` instance.
+#             'auth': str(request.auth),  # None
+#         }
+#         return Response(content)
