@@ -65,10 +65,9 @@ def login(request):
 
     token = jwt.encode(payload, secret, algorithm='HS256')#.decode('utf-8')
     response = Response()
-    response.data = json.dumps({
+    response.data = {
         'jwt': token,
-    })
-    
+    }
     # return response
 
     # token, _ = Token.objects.get_or_create(user=user)
