@@ -24,7 +24,7 @@ from django.contrib.auth.models import User, UserManager
 from django.contrib.auth.hashers import check_password
 from rest_framework import viewsets
 from .serializers import UserSerializer
-import jwt, datetime
+import jwt, datetime, json
 
 @api_view(['POST'])
 def login(request):
@@ -65,9 +65,9 @@ def login(request):
 
     token = jwt.encode(payload, secret, algorithm='HS256')#.decode('utf-8')
     response = Response()
-    response.data = {
+    response.data = json.dumps({
         'jwt': token,
-    }
+    })
     
     # return response
 
