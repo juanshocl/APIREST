@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Persona, usuario
+from .models import Persona#, usuario
 from .serializers import PersonaSerializer
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, UserManager
@@ -28,6 +28,7 @@ import jwt, datetime
 
 @api_view(['POST'])
 def login(request):
+    rol = 0
     secret = '201bDFxMo0QurVdUrKF2cimkbHDXQ3lp'
     username = request.POST.get('username')
     password = request.POST.get('password')
@@ -42,13 +43,24 @@ def login(request):
         return Response('contraseña no valido', status = status.HTTP_401_UNAUTHORIZED)
 
     tk, _ = Token.objects.get_or_create(user=user)
+
+    if user.is_staff:
+        rol = 1
+
     
     payload = {
-        'user': str(user),
-        'exp': str(datetime.datetime.utcnow()) + str(datetime.timedelta(minutes=60)),
-        'iat': str(datetime.datetime.utcnow()),
-        'status': status.HTTP_202_ACCEPTED,
-        'tk': str(tk)
+        'exito': status.HTTP_202_ACCEPTED, 
+        'mensaje': 'Coneccion Aceptada',
+        'data':
+            {
+                'nombre': user.first_name,
+                'apellido': user.last_name,
+                'rol': rol,
+                'email':user.email,
+                'token':str(tk), 
+            },
+        # 'exp': str(datetime.datetime.utcnow()) + str(datetime.timedelta(minutes=60)),
+        # 'iat': str(datetime.datetime.utcnow()),
     }
 
     token = jwt.encode(payload, secret, algorithm='HS256')#.decode('utf-8')
