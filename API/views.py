@@ -1,3 +1,4 @@
+from APIREST.settings import SECRET
 from django.http import response
 from django.http.response import HttpResponse
 from django.shortcuts import render,redirect
@@ -26,10 +27,14 @@ from rest_framework import viewsets
 from .serializers import UserSerializer
 import jwt, datetime, json
 
+def decodered(request):
+    data = request.COOKIES.get('validate')
+    data_token = jwt.decode(data, SECRET, algorithms=["HS256"])
+    return data_token
+
 @api_view(['POST'])
 def login(request):
     rol = 0
-    secret = '201bDFxMo0QurVdUrKF2cimkbHDXQ3lp'
     username = request.POST.get('username')
     password = request.POST.get('password')
     try:
@@ -63,7 +68,7 @@ def login(request):
         # 'iat': str(datetime.datetime.utcnow()),
     }
 
-    token = jwt.encode(payload, secret, algorithm='HS256')#.decode('utf-8')
+    token = jwt.encode(payload, SECRET, algorithm='HS256')#.decode('utf-8')
     response = Response()
     response.data = {
         'jwt': token,
